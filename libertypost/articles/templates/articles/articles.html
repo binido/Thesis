@@ -1,0 +1,52 @@
+{% extends "articles/main.html" %} 
+{% block main_content %} 
+{% for article in articles %}
+<div class="card card-article card-padding">
+    <div class="card-info flex-row">
+        <a href="#" class="user-info flex-row">
+            <img src="{{ article.author.image.url|default:'https://placehold.co/32x32' }}" alt="" />
+            <p>{{ article.author.username }}</p>
+        </a>
+        <p>{{ article.created_at|timesince }} назад</p>
+    </div>
+    <div class="card-header">
+        <a href="{% url 'articles:article' article.id %}" class="article-title">
+            <h2 class="shirt">{{ article.title }}</h2>
+        </a>
+        <div class="card-categories">
+            {% for category in article.categories.all %}
+            <a href="{% url 'articles:category' category.slug %}"
+                >{{ category.name }}</a
+            >
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-body">
+        {% if article.image %}
+        <img src="{{ article.image.url }}" alt="" />
+        {% endif %}
+        <div class="article article-shirt">
+            {{ article.content }}
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <button class="read-button" type="button">Читать</button>
+        <div class="interactive flex-row">
+            <div class="interactive-item">
+                <a href="#" class="flex-row">
+                    <i class="fa-solid fa-message"></i>
+                    <p>{{ article.comment_count }}</p>
+                </a>
+            </div>
+            <div
+                class="interactive-item"
+                onclick="copyLink('{{ request.build_absolute_uri }}')"
+            >
+                <i class="fa-solid fa-share"></i>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %} 
+{% endblock main_content %}

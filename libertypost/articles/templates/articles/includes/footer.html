@@ -1,0 +1,65 @@
+{% load static %}
+
+
+<footer>
+    <div class="footer-block">
+        <div class="footer-header">
+            <div class="logo-block flex-row">
+                <img src="{% static 'images/logo.png' %}" alt="" />
+                <h3>LibertyPost</h3>
+            </div>
+        </div>
+        <div class="footer-body">
+            <div class="footer-col flex-col">
+                <p>Ваш независимый источник информации</p>
+                <a href="">
+                    <img src="{% static 'images/github.svg' %}" alt="" />
+                </a>
+            </div>
+            <div class="footer-col list flex-col">
+                <p>управление</p>
+                <ul>
+                    <li><a href="">Профиль</a></li>
+                    <li><a href="">Создать</a></li>
+                    <li><a href="">О проекте</a></li>
+                    <li><a href="">Лицензия</a></li>
+                    <li><a href="">Правообладателям</a></li>
+                </ul>
+            </div>
+            <div class="footer-col list flex-col">
+                <p>разделы</p>
+                <ul>
+                {% for category in categories %}
+                    <li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="footer-footer">
+            <p>
+                Разработка студента КС ПГУТИ в рамках дипломного проекта
+            </p>
+        </div>
+    </div>
+</footer>
+
+<div class="toast">Ссылка скопирована в буфер обмена</div>
+
+<button class="scroll-top" aria-label="Наверх">
+    <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path
+            d="M12 20L12 4M12 4L5 11M12 4L19 11"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        />
+    </svg>
+</button>
+</body>

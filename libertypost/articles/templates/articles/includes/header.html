@@ -1,0 +1,63 @@
+{% load static %}
+
+<header class="flex-col">
+    <div class="header flex-row">
+        <div class="header-container">
+            <div class="logo-block flex-row">
+                <button class="burger-menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <a href="{% url 'home' %}" class="flex-row">
+                    <img src="{% static 'images/logo.png' %}" alt="" />
+                    <h3>LibertyPost</h3>
+                </a>
+            </div>
+            <div class="header-control flex-row">
+                <a href="">
+                    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+                </a>
+                <a href="">
+                    <i class="fa-solid fa-pen fa-lg"></i>
+                </a>
+                <a href="">
+                    <img
+                        class="avatar"
+                        src="https://placehold.co/32x32"
+                        alt=""
+                    />
+                </a>
+                <a href="">
+                    <i class="fa-solid fa-right-to-bracket fa-lg"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="header-nav">
+        <div class="header-container">
+            <ul class="flex-row">
+                <li><a href="{% url 'home' %}">Главная</a></li>
+                {% for category in categories %}
+                <li>
+                    <a href="{{ category.get_absolute_url }}"
+                        >{{ category.name }}</a
+                    >
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="mobile-menu">
+        <ul>
+            <li><a href="{% url 'home' %}">Главная</a></li>
+            {% for category in categories %}
+            <li>
+                <a href="{{ category.get_absolute_url }}"
+                    >{{ category.name }}</a
+                >
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</header>

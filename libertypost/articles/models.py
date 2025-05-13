@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+
 
 User = get_user_model()
 
@@ -23,6 +25,15 @@ class Article(models.Model):
         default="moderated",
         verbose_name="Статус",
     )
+    source = models.URLField(
+        max_length=200, verbose_name="Источник", blank=True, null=True
+    )
+    image = models.ImageField(
+        upload_to="articles/images/",
+        blank=True,
+        null=True,
+        verbose_name="Изображение",
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,6 +44,9 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse("articles:article", args=[self.id])
 
 
 class Category(models.Model):
@@ -46,6 +60,9 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("articles:category", args=[self.slug])
 
 
 class Comment(models.Model):

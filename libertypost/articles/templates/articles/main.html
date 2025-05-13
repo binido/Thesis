@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% include "articles/includes/header.html" %}
+
+    <main>
+        {% block main_content %}
+        {% endblock %}
+    </main>
+
+    {% include "articles/includes/footer.html" %}
+{% endblock %}

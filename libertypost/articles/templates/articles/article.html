@@ -1,0 +1,120 @@
+{% extends "articles/main.html" %} {% block main_content %}
+
+<div class="card card-article card-padding">
+    <div class="card-info flex-row">
+        <a href="#" class="user-info flex-row">
+            <img
+                src="{{ article.author_avatar|default:'https://placehold.co/32x32' }}"
+                alt="Аватар автора"
+            />
+            <p>{{ article.username }}</p>
+        </a>
+        <p>{{ article.published_ago }}</p>
+    </div>
+
+    <div class="card-header">
+        <a href="#" class="article-title">
+            <h2>{{ article.title }}</h2>
+        </a>
+        <div class="card-categories">
+            {% for category in article.categories %}
+            <a href="#">{{ category }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card-body">
+        {% if article.image %}
+        <img src="{{ article.image }}" alt="Изображение статьи" />
+        {% endif %}
+        <div class="article">{{ article.content }}</div>
+    </div>
+
+    <div class="card-footer">
+        <div class="source">
+            <p>
+                Источник:
+                <a href="{{ article.source }}">{{ article.source }}</a>
+            </p>
+            <!-- заменишь на нужный -->
+        </div>
+        <button class="btn-modify" onclick="document.location.href='#'">
+            Редактировать
+        </button>
+        <div class="interactive flex-row">
+            <div class="interactive-item">
+                <a href="#" class="flex-row">
+                    <i class="fa-solid fa-message"></i>
+                    <p>{{ article.comment_count }}</p>
+                </a>
+            </div>
+            <div
+                class="interactive-item"
+                onclick="copyLink('{{ request.build_absolute_uri }}')"
+            >
+                <i class="fa-solid fa-share"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="autor-block card">
+    <img
+        src="{{ article.author_avatar|default:'https://placehold.co/48x48' }}"
+        alt="Аватар автора"
+    />
+    <div class="flex-col">
+        <a href="#">@{{ article.author_name }}</a>
+        <p>Всего статей: {{ article.total_articles }}</p>
+        <!-- можешь передавать article.author_article_count -->
+    </div>
+</div>
+
+<div class="add-coment-block">
+    <form action="">
+        <label for="comment">Ваш комментарий</label>
+        <textarea
+            name="comment"
+            id=""
+            placeholder="Напишите что-нибудь"
+        ></textarea>
+        <input type="submit" value="Отправить" disabled />
+    </form>
+</div>
+
+<div class="add-coment-block">
+    <form action="">
+        <label for="comment">Ваш комментарий</label>
+        <p class="no-comments">
+            Вы не авторизованы, чтобы оставить комментарий.
+        </p>
+    </form>
+</div>
+
+{% if article.comment_count > 0 %}
+<div class="comments-block card">
+    <h5>Комментарии <span>{{ article.comment_count }}</span></h5>
+    <ul>
+        {% for comment in article.comments %}
+        <li>
+            <div class="comment-header flex-row">
+                <a href="#" class="flex-row">
+                    <img
+                        src="{{ comment.author.image.url|default:'https://placehold.co/32x32' }}"
+                        alt="Аватар"
+                    />
+                    <p>{{ comment.author.username }}</p>
+                </a>
+                <p>{{ comment.created_at|timesince }} назад</p>
+            </div>
+            <div class="comment-body">{{ comment.content }}</div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="comments-block card">
+    <h5>Комментарии</h5>
+    <p class="no-comments">Комментариев пока нет, будьте первым!</p>
+</div>
+{% endif %} {% endblock main_content %}
