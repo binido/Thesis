@@ -1,0 +1,133 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+# db.sqlite3
+db.sqlite3-journal
+# media
+
+# Файлы миграций - раскомментируйте, если они не должны быть в репозитории
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Если вы используете PostgreSQL
+*.psql
+*.pgsql
+*.sql
+*.dump
+
+# Виртуальное окружение Python #
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Папка для собранных статических файлов
+/staticfiles/
+
+# Настройки и файлы IDE #
+# VS Code
+.vscode/
+.history
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+*.iws
+.idea_modules/
+out/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Пакетирование #
+*.manifest
+*.spec
+dist/
+build/
+eggs/
+parts/
+bin/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Установленные пакеты #
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Логи и отладочная информация #
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Локальные файлы конфигурации #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Файлы среды #
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Файлы компиляции #
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Файлы frontend #
+# зависимости
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# production
+/frontend/build/
+
+# misc
+.eslintcache
