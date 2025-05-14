@@ -1,6 +1,7 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.timesince import timesince
+from django.contrib.auth.decorators import login_required
 import markdown
 from .dao import ArticleDAO, CommentDAO, UserDAO
 
@@ -48,6 +49,7 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
             "title": article.title,
             "content": content,
             "author_name": article.author.username,
+            "author_id": article.author.id,
             "author_avatar": article.author.image.url if article.author.image else None,
             "categories": [cat.name for cat in article.categories.all()],
             "image": article.image.url if article.image else None,
@@ -62,7 +64,7 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
     return render(request, "articles/article.html", context=data)
 
 
-
+@login_required
 def create_article(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         title = request.POST.get("title", "").strip()
@@ -80,9 +82,9 @@ def create_article(request: HttpRequest) -> HttpResponse:
                 category_ids=[int(c) for c in category_ids],
                 image=image,
             )
-            return redirect("home")  # или куда нужно
+            return redirect("home")
 
-    return render(request, "articles/create_article.html", context={})
+    return render(request, "articles/create_article.html")
 
 
 def update_article(request: HttpRequest, article_id: int) -> HttpResponse:

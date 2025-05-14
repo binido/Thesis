@@ -1,6 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+
+from .models import User
+from articles.dao import ArticleDAO, UserDAO
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 
 
@@ -20,7 +25,6 @@ def register_view(request):
             return render(request, "account/register.html", {"form": form})
     else:
         form = CustomUserCreationForm()
-
     return render(request, "account/register.html", {"form": form})
 
 
@@ -46,7 +50,6 @@ def login_view(request):
             messages.error(request, "Неверный логин или пароль")
     else:
         form = CustomAuthenticationForm()
-
     return render(request, "account/login.html", {"form": form})
 
 
@@ -56,12 +59,90 @@ def logout_view(request):
     """
     logout(request)
     messages.info(request, "Вы успешно вышли из системы")
-    return redirect("login")  # Переадресация на страницу входа
+    return redirect("home")  # Переадресация на страницу входа
 
 
-def profile(request):
-    pass
+@login_required
+def profile(request, status="published"):
+    """
+    Представление для отображения профиля текущего пользователя.
+    Пользователь может просматривать свои статьи с разными статусами.
+
+    Args:
+        status: Статус статей для отображения ('published', 'moderated', 'rejected')
+    """
+    user = request.user
+    page = request.GET.get("page", 1)
+
+    # Получаем статьи пользователя с выбранным статусом
+    result = ArticleDAO.get_articles_by_author(
+        author_id=user.id,
+        status=status,
+        page=int(page),
+        per_page=10,
+        order_by="-created_at",
+    )
+
+    # Получаем статистику пользователя
+    user_stats = UserDAO.get_author_stats(user.id)
+
+    # Формируем контекст для шаблона
+    context = {
+        "user_profile": user,
+        "articles": result["articles"],
+        "page_obj": result["page_obj"],
+        "is_paginated": result["is_paginated"],
+        "total_articles": result["total_articles"],
+        "user_stats": user_stats,
+        "current_status": status,
+        "is_own_profile": True,  # Это профиль текущего пользователя
+    }
+
+    return render(request, "account/profile.html", context)
 
 
 def user_profile(request, user_id):
-    pass
+    """
+    Представление для просмотра профиля другого пользователя.
+    Доступны только опубликованные статьи.
+
+    Args:
+        user_id: ID пользователя, профиль которого нужно показать
+    """
+    user = get_object_or_404(User, id=user_id)
+    page = request.GET.get("page", 1)
+
+    # Получаем только опубликованные статьи
+    result = ArticleDAO.get_articles_by_author(
+        author_id=user.id,
+        status="published",
+        page=int(page),
+        per_page=10,
+        order_by="-created_at",
+    )
+
+    # Получаем статистику пользователя
+    user_stats = {
+        "published_count": result["total_articles"],
+        "moderated_count": 0,  # Не показываем для других пользователей
+        "rejected_count": 0,  # Не показываем для других пользователей
+    }
+
+    # Проверяем, является ли текущий пользователь владельцем профиля
+    is_own_profile = request.user.is_authenticated and request.user.id == user.id
+
+    if is_own_profile:
+        return redirect("account:profile")
+
+    context = {
+        "user_profile": user,
+        "articles": result["articles"],
+        "page_obj": result["page_obj"],
+        "is_paginated": result["is_paginated"],
+        "total_articles": result["total_articles"],
+        "user_stats": user_stats,
+        "current_status": "published",
+        "is_own_profile": is_own_profile,
+    }
+
+    return render(request, "account/profile.html", context)

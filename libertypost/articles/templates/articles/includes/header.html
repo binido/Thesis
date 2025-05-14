@@ -17,10 +17,10 @@
                 <a href="{% url 'articles:search' %}">
                     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
                 </a>
-                <a href="{% url 'articles:create_article' %}">
-                    <i class="fa-solid fa-pen fa-lg"></i>
-                </a>
                 {% if user.is_authenticated %}
+                    <a href="{% url 'articles:create_article' %}">
+                        <i class="fa-solid fa-pen fa-lg"></i>
+                    </a>
                     <!-- Для зарегистрированных пользователей показываем аватар -->
                     <a href="{% url 'account:profile' %}">
                         {% if user.image %}

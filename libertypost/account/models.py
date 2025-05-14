@@ -2,6 +2,7 @@ import os
 import random
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.urls import reverse
 
 
 def get_random_avatar():
@@ -45,6 +46,10 @@ class User(AbstractUser):
 
     # Указываем обязательные поля
     REQUIRED_FIELDS = ["email"]
+
+    def get_absolute_url(self):
+        return reverse("account:user_profile", kwargs={"user_id": self.pk})
+    
 
     def __str__(self):
         return self.username

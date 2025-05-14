@@ -2,7 +2,10 @@
 
 <div class="card card-article card-padding">
     <div class="card-info flex-row">
-        <a href="#" class="user-info flex-row">
+        <a
+            href="{% url 'account:user_profile' article.author_id %}"
+            class="user-info flex-row"
+        >
             <img
                 src="{{ article.author_avatar|default:'https://placehold.co/32x32' }}"
                 alt="Аватар автора"
@@ -37,18 +40,24 @@
                 <a href="{{ article.source }}">{{ article.source }}</a>
             </p>
         </div>
-        <button class="btn-modify" onclick="document.location.href='#'">
+        {% if request.user == article.author %}
+        <button class="btn-modify" onclick="document.location.href=``">
             Редактировать
         </button>
+        {% endif %}
+
         <div class="interactive flex-row">
             <div class="interactive-item">
-                <a href="#" class="flex-row">
+                <a
+                    href="{% url 'articles:article' article.id %}#comment"
+                    class="flex-row"
+                >
                     <i class="fa-solid fa-message"></i>
                     <p>{{ article.comment_count }}</p>
                 </a>
             </div>
-            <div 
-                class="interactive-item" 
+            <div
+                class="interactive-item"
                 onclick="copyLink(`{{ request.scheme }}://{{ request.get_host }}{% url 'articles:article' article.id %}`)"
             >
                 <i class="fa-solid fa-share"></i>
@@ -63,14 +72,15 @@
         alt="Аватар автора"
     />
     <div class="flex-col">
-        <a href="#">@{{ article.author_name }}</a>
+        <a href="{% url 'account:user_profile' article.author_id %}"
+            >@{{ article.author_name }}</a
+        >
         <p>Всего статей: {{ article.total_articles }}</p>
     </div>
 </div>
 
-
 {% if user.is_authenticated %}
-<div class="add-coment-block">
+<div class="add-coment-block" id="comment">
     <form method="post">
         {% csrf_token %}
         <label for="comment">Ваш комментарий</label>
@@ -83,24 +93,25 @@
     </form>
 </div>
 {% else %}
-<div class="add-coment-block">
+<div class="add-coment-block" id="comment">
     <form action="">
         <label for="comment">Ваш комментарий</label>
         <p class="no-comments">
             Вы не авторизованы, чтобы оставить комментарий.
         </p>
     </form>
-</div>           
-{% endif %}
-
-{% if article.comment_count > 0 %}
+</div>
+{% endif %} {% if article.comment_count > 0 %}
 <div class="comments-block card">
     <h5>Комментарии <span>{{ article.comment_count }}</span></h5>
     <ul>
         {% for comment in article.comments %}
         <li>
             <div class="comment-header flex-row">
-                <a href="#" class="flex-row">
+                <a
+                    href="{{ comment.author.get_absolute_url }}"
+                    class="flex-row"
+                >
                     <img
                         src="{{ comment.author.image.url|default:'https://placehold.co/32x32' }}"
                         alt="Аватар"

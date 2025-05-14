@@ -1,0 +1,103 @@
+{% extends "articles/main.html" %} 
+{% block main_content %} 
+<div class="card user-profile flex-col">
+    <div class="user-profile-header flex-row">
+        <div class="user-profile-header__img flex-row">
+            {% if user_profile.image %}
+                <img src="{{ user_profile.image.url }}" alt="{{ user_profile.username }}" />
+            {% else %}
+                <img src="https://placehold.co/48x48" alt="{{ user_profile.username }}" />
+            {% endif %}
+            <a href="{% url 'account:user_profile' user_profile.id %}">@{{ user_profile.username }}</a>
+            <p>Пользователь</p>
+        </div>
+        {% if is_own_profile %}
+            <a href="{% url 'account:logout' %}"><button>Выйти</button></a>
+        {% endif %}
+    </div>
+    <div class="flex-row g-16">
+        <b>Зарегистрирован</b>
+        <p>{{ user_profile.date_joined|date:"d.m.Y" }}</p>
+    </div>
+    
+    {% if is_own_profile %}
+    <div class="user-profile-footer">
+        <ul class="flex-row">
+            <li><a href="{% url 'account:profile_status' 'published' %}" {% if current_status == 'published' %}class="active"{% endif %}>Опубликовано ({{ user_stats.published_count }})</a></li>
+            <li><a href="{% url 'account:profile_status' 'moderated' %}" {% if current_status == 'moderated' %}class="active"{% endif %}>На модерации ({{ user_stats.moderated_count }})</a></li>
+            <li><a href="{% url 'account:profile_status' 'rejected' %}" {% if current_status == 'rejected' %}class="active"{% endif %}>Отклонено ({{ user_stats.rejected_count }})</a></li>
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+{% if articles %}
+    {% for article in articles %}
+        <div class="card card-article card-padding">
+            <div class="card-info flex-row">
+                <a href="{% url 'account:user_profile' article.author.id %}" class="user-info flex-row">
+                    {% if article.author.image %}
+                        <img src="{{ article.author.image.url }}" alt="{{ article.author.username }}" />
+                    {% else %}
+                        <img src="https://placehold.co/32x32" alt="{{ article.author.username }}" />
+                    {% endif %}
+                    <p>{{ article.author.username }}</p>
+                </a>
+                <p>{{ article.created_at|timesince }} назад</p>
+            </div>
+            <div class="card-header">
+                <a href="{% url 'articles:article' article.id %}" class="article-title">
+                    <h2 class="shirt">{{ article.title }}</h2>
+                </a>
+                <div class="card-categories">
+                    {% for category in article.categories.all %}
+                        <a href="{% url 'articles:category' category.slug %}">{{ category.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="interactive flex-row">
+                    <div class="interactive-item">
+                        <a href="{% url 'articles:article' article.id %}#comment" class="flex-row">
+                            <i class="fa-solid fa-message"></i>
+                            <p>{{ article.comment_count }}</p>
+                        </a>
+                    </div>
+                    <div
+                        class="interactive-item"
+                        onclick="copyLink(`{{ request.scheme }}://{{ request.get_host }}{% url 'articles:article' article.id %}`)"
+                    >
+                        <i class="fa-solid fa-share"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if current_status == 'rejected' and article.rejection_reason %}
+            <div class="card disapproved">
+                <h4>Причина отклонения</h4>
+                <p>{{ article.rejection_reason }}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+    
+    {% if is_paginated %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
+        {% endif %}
+
+        <span class="current-page">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+{% else %}
+    <div class="no-articles card">Нет ни одной публикации</div>
+{% endif %}
+{% endblock main_content %}

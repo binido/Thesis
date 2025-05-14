@@ -3,7 +3,7 @@
 {% for article in articles %}
 <div class="card card-article card-padding">
     <div class="card-info flex-row">
-        <a href="#" class="user-info flex-row">
+        <a href="{{ article.author.get_absolute_url }}" class="user-info flex-row">
             <img src="{{ article.author.image.url|default:'https://placehold.co/32x32' }}" alt="" />
             <p>{{ article.author.username }}</p>
         </a>
@@ -34,7 +34,7 @@
         <button class="read-button" type="button" onclick="document.location.href=`{% url 'articles:article' article.id %}`">Читать</button>
         <div class="interactive flex-row">
             <div class="interactive-item">
-                <a href="#" class="flex-row">
+                <a href="{% url 'articles:article' article.id %}#comment" class="flex-row">
                     <i class="fa-solid fa-message"></i>
                     <p>{{ article.comment_count }}</p>
                 </a>
