@@ -1,6 +1,19 @@
 {% extends "articles/main.html" %} 
 {% block main_content %} 
+<div class="card category-card">
+    <h4>{{ category.name }}</h4>
+    <hr />
+    <!-- <form action="">
+        <select name="" id="" class="filter">
+            <option value="">Сначала новые</option>
+            <option value="">Сначала старые</option>
+        </select>
+    </form> -->
+</div>
+
 {% for article in articles %}
+
+
 <div class="card card-article card-padding">
     <div class="card-info flex-row">
         <a href="#" class="user-info flex-row">

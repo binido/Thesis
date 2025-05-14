@@ -1,5 +1,4 @@
 {% load static %}
-
 <header class="flex-col">
     <div class="header flex-row">
         <div class="header-container">
@@ -15,29 +14,33 @@
                 </a>
             </div>
             <div class="header-control flex-row">
-                <a href="">
+                <a href="{% url 'articles:search' %}">
                     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
                 </a>
-                <a href="">
+                <a href="{% url 'articles:create_article' %}">
                     <i class="fa-solid fa-pen fa-lg"></i>
                 </a>
-                <a href="">
-                    <img
-                        class="avatar"
-                        src="https://placehold.co/32x32"
-                        alt=""
-                    />
-                </a>
-                <a href="">
-                    <i class="fa-solid fa-right-to-bracket fa-lg"></i>
-                </a>
+                {% if user.is_authenticated %}
+                    <!-- Для зарегистрированных пользователей показываем аватар -->
+                    <a href="{% url 'account:profile' %}">
+                        {% if user.image %}
+                            <img class="avatar" src="{{ user.image.url }}" alt="{{ user.username }}" />
+                        {% else %}
+                            <img class="avatar" src="https://placehold.co/32x32" alt="{{ user.username }}" />
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <!-- Для незарегистрированных пользователей показываем ссылку на вход -->
+                    <a href="{% url 'account:login' %}">
+                        <i class="fa-solid fa-right-to-bracket fa-lg"></i>
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
     <div class="header-nav">
         <div class="header-container">
             <ul class="flex-row">
-                <li><a href="{% url 'home' %}">Главная</a></li>
                 {% for category in categories %}
                 <li>
                     <a href="{{ category.get_absolute_url }}"

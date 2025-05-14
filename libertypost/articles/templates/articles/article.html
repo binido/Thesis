@@ -7,7 +7,7 @@
                 src="{{ article.author_avatar|default:'https://placehold.co/32x32' }}"
                 alt="Аватар автора"
             />
-            <p>{{ article.username }}</p>
+            <p>{{ article.author_name }}</p>
         </a>
         <p>{{ article.published_ago }}</p>
     </div>
@@ -27,7 +27,7 @@
         {% if article.image %}
         <img src="{{ article.image }}" alt="Изображение статьи" />
         {% endif %}
-        <div class="article">{{ article.content }}</div>
+        <div class="article">{{ article.content|safe }}</div>
     </div>
 
     <div class="card-footer">
@@ -36,7 +36,6 @@
                 Источник:
                 <a href="{{ article.source }}">{{ article.source }}</a>
             </p>
-            <!-- заменишь на нужный -->
         </div>
         <button class="btn-modify" onclick="document.location.href='#'">
             Редактировать
@@ -48,9 +47,9 @@
                     <p>{{ article.comment_count }}</p>
                 </a>
             </div>
-            <div
-                class="interactive-item"
-                onclick="copyLink('{{ request.build_absolute_uri }}')"
+            <div 
+                class="interactive-item" 
+                onclick="copyLink(`{{ request.scheme }}://{{ request.get_host }}{% url 'articles:article' article.id %}`)"
             >
                 <i class="fa-solid fa-share"></i>
             </div>
@@ -66,22 +65,24 @@
     <div class="flex-col">
         <a href="#">@{{ article.author_name }}</a>
         <p>Всего статей: {{ article.total_articles }}</p>
-        <!-- можешь передавать article.author_article_count -->
     </div>
 </div>
 
+
+{% if user.is_authenticated %}
 <div class="add-coment-block">
-    <form action="">
+    <form method="post">
+        {% csrf_token %}
         <label for="comment">Ваш комментарий</label>
         <textarea
             name="comment"
             id=""
             placeholder="Напишите что-нибудь"
         ></textarea>
-        <input type="submit" value="Отправить" disabled />
+        <input type="submit" value="Отправить" />
     </form>
 </div>
-
+{% else %}
 <div class="add-coment-block">
     <form action="">
         <label for="comment">Ваш комментарий</label>
@@ -89,7 +90,8 @@
             Вы не авторизованы, чтобы оставить комментарий.
         </p>
     </form>
-</div>
+</div>           
+{% endif %}
 
 {% if article.comment_count > 0 %}
 <div class="comments-block card">

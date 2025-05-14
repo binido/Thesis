@@ -105,6 +105,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "account.backends.EmailOrUsernameBackend",
+    # "django.contrib.auth.backends.ModelBackend",  # Стандартный бэкенд Django в качестве запасного
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -133,6 +138,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "account.User"
+
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "account:login"
 
 
 MEDIA_URL = "/media/"

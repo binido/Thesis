@@ -1,5 +1,20 @@
 {% extends "articles/main.html" %} 
 {% block main_content %} 
+
+<div class="card p-10 flex-col g-16 card-search">
+    <form method="get">
+        <div class="flex-row">
+            <input type="text" name="query" placeholder="Найти статью" value="{{ query }}" />
+            <input type="submit" value="🔍︎" />
+        </div>
+        <select name="sort" class="filter" onchange="this.form.submit()">
+            <option value="-created_at" {% if request.GET.sort == "-created_at" %}selected{% endif %}>Сначала новые</option>
+            <option value="created_at" {% if request.GET.sort == "created_at" %}selected{% endif %}>Сначала старые</option>
+        </select>
+    </form>
+        
+</div>
+
 {% for article in articles %}
 <div class="card card-article card-padding">
     <div class="card-info flex-row">
@@ -49,4 +64,5 @@
     </div>
 </div>
 {% endfor %} 
-{% endblock main_content %}
+
+{% endblock %}

@@ -14,7 +14,10 @@ class ArticleDAO:
 
     @staticmethod
     def get_articles_with_comment_count(
-        page: int = 1, per_page: int = 10, status: str = "published"
+        page: int = 1,
+        per_page: int = 10,
+        status: str = "published",
+        order_by: str = "-created_at",
     ) -> Dict[str, Any]:
         """
         Получить список статей с подсчетом количества комментариев
@@ -23,6 +26,7 @@ class ArticleDAO:
             page: Номер страницы
             per_page: Количество статей на страницу
             status: Статус статей для фильтрации
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
 
         Returns:
             Словарь со статьями, их количеством комментариев и информацией о пагинации
@@ -31,6 +35,7 @@ class ArticleDAO:
             Article.objects.select_related("author")
             .filter(status=status)
             .annotate(comment_count=Count("comments"))
+            .order_by(order_by)
         )
 
         paginator = Paginator(queryset, per_page)
@@ -44,40 +49,12 @@ class ArticleDAO:
         }
 
     @staticmethod
-    def get_article_by_id(
-        article_id: int,
-        prefetch_comments: bool = False,
-        prefetch_categories: bool = False,
-    ) -> Article:
-        """
-        Получить статью по ID с возможностью предварительной загрузки комментариев и категорий
-
-        Args:
-            article_id: ID статьи
-            prefetch_comments: Загружать ли комментарии вместе со статьей
-            prefetch_categories: Загружать ли категории вместе со статьей
-
-        Returns:
-            Объект статьи или 404 ошибка, если статья не найдена
-        """
-        queryset = Article.objects.select_related("author")
-
-        if prefetch_comments:
-            queryset = queryset.prefetch_related(
-                Prefetch("comments", queryset=Comment.objects.select_related("author"))
-            )
-
-        if prefetch_categories:
-            queryset = queryset.prefetch_related("categories")
-
-        # Добавляем подсчет комментариев
-        queryset = queryset.annotate(comment_count=Count("comments"))
-
-        return get_object_or_404(queryset, id=article_id)
-
-    @staticmethod
     def get_articles_by_author(
-        author_id: int, status: Optional[str] = None, page: int = 1, per_page: int = 10
+        author_id: int,
+        status: Optional[str] = None,
+        page: int = 1,
+        per_page: int = 10,
+        order_by: str = "-created_at",
     ) -> Dict[str, Any]:
         """
         Получить статьи конкретного автора с фильтрацией по статусу и пагинацией
@@ -87,6 +64,7 @@ class ArticleDAO:
             status: Статус статей для фильтрации (если None - все статьи)
             page: Номер страницы для пагинации
             per_page: Количество статей на страницу
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
 
         Returns:
             Словарь с объектами статей и информацией о пагинации
@@ -96,8 +74,8 @@ class ArticleDAO:
         if status:
             queryset = queryset.filter(status=status)
 
-        # Добавляем подсчет комментариев
-        queryset = queryset.annotate(comment_count=Count("comments"))
+        # Добавляем подсчет комментариев и сортировку
+        queryset = queryset.annotate(comment_count=Count("comments")).order_by(order_by)
 
         paginator = Paginator(queryset, per_page)
         page_obj = paginator.get_page(page)
@@ -111,7 +89,7 @@ class ArticleDAO:
 
     @staticmethod
     def get_articles_by_status(
-        status: str, page: int = 1, per_page: int = 10
+        status: str, page: int = 1, per_page: int = 10, order_by: str = "-created_at"
     ) -> Dict[str, Any]:
         """
         Получить все статьи с определенным статусом
@@ -120,6 +98,7 @@ class ArticleDAO:
             status: Статус статей ("moderated", "published", "rejected")
             page: Номер страницы
             per_page: Количество статей на страницу
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
 
         Returns:
             Словарь с объектами статей и информацией о пагинации
@@ -128,6 +107,7 @@ class ArticleDAO:
             Article.objects.select_related("author")
             .filter(status=status)
             .annotate(comment_count=Count("comments"))
+            .order_by(order_by)
         )
 
         paginator = Paginator(queryset, per_page)
@@ -142,7 +122,10 @@ class ArticleDAO:
 
     @staticmethod
     def get_articles_by_category(
-        category_slug: str, page: int = 1, per_page: int = 10
+        category_slug: str,
+        page: int = 1,
+        per_page: int = 10,
+        order_by: str = "-created_at",
     ) -> Dict[str, Any]:
         """
         Получить опубликованные статьи по категории
@@ -151,6 +134,7 @@ class ArticleDAO:
             category_slug: Slug категории
             page: Номер страницы
             per_page: Количество статей на страницу
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
 
         Returns:
             Словарь с объектами статей, категорией и информацией о пагинации
@@ -160,6 +144,7 @@ class ArticleDAO:
             Article.objects.select_related("author")
             .filter(categories=category, status="published")
             .annotate(comment_count=Count("comments"))
+            .order_by(order_by)
         )
 
         paginator = Paginator(queryset, per_page)
@@ -175,27 +160,35 @@ class ArticleDAO:
 
     @staticmethod
     def search_articles(
-        query: str, page: int = 1, per_page: int = 10
+        query: str,
+        page: int = 1,
+        per_page: int = 10,
+        order_by: str = "-created_at",
+        category_slug: Optional[str] = None,  # Новый необязательный параметр
     ) -> Dict[str, Any]:
         """
-        Поиск статей по заголовку и содержимому
+        Поиск статей по заголовку, содержимому и категории
 
         Args:
             query: Поисковый запрос
             page: Номер страницы
             per_page: Количество статей на страницу
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
+            category_slug: Slug категории (необязательный)
 
         Returns:
             Словарь с результатами поиска и информацией о пагинации
         """
-        queryset = (
-            Article.objects.select_related("author")
-            .filter(
-                Q(title__icontains=query) | Q(content__icontains=query),
-                status="published",
-            )
-            .annotate(comment_count=Count("comments"))
+        queryset = Article.objects.select_related("author").filter(
+            Q(title__icontains=query) | Q(content__icontains=query),
+            status="published",
         )
+
+        # Если указан category_slug, добавляем фильтрацию по категории
+        if category_slug:
+            queryset = queryset.filter(categories__slug=category_slug)
+
+        queryset = queryset.annotate(comment_count=Count("comments")).order_by(order_by)
 
         paginator = Paginator(queryset, per_page)
         page_obj = paginator.get_page(page)
@@ -203,10 +196,122 @@ class ArticleDAO:
         return {
             "articles": page_obj.object_list,
             "query": query,
+            "category_slug": category_slug,
             "page_obj": page_obj,
             "is_paginated": page_obj.has_other_pages(),
             "total_articles": paginator.count,
         }
+
+    @staticmethod
+    def get_article_by_id(
+        article_id: int,
+        prefetch_comments: bool = False,
+        prefetch_categories: bool = False,
+        comments_order_by: str = "-created_at",
+    ) -> Article:
+        """
+        Получить статью по ID с возможностью предварительной загрузки комментариев и категорий
+
+        Args:
+            article_id: ID статьи
+            prefetch_comments: Загружать ли комментарии вместе со статьей
+            prefetch_categories: Загружать ли категории вместе со статьей
+            comments_order_by: Порядок сортировки комментариев, по умолчанию сначала новые ("-created_at")
+
+        Returns:
+            Объект статьи или 404 ошибка, если статья не найдена
+        """
+        queryset = Article.objects.select_related("author")
+
+        if prefetch_comments:
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "comments",
+                    queryset=Comment.objects.select_related("author").order_by(
+                        comments_order_by
+                    ),
+                )
+            )
+
+        if prefetch_categories:
+            queryset = queryset.prefetch_related("categories")
+
+        # Добавляем подсчет комментариев
+        queryset = queryset.annotate(comment_count=Count("comments"))
+
+        return get_object_or_404(queryset, id=article_id)
+
+    @staticmethod
+    def get_articles_without_comments(
+        page: int = 1, per_page: int = 10, order_by: str = "-created_at"
+    ) -> Dict[str, Any]:
+        """
+        Получить опубликованные статьи без комментариев
+
+        Args:
+            page: Номер страницы
+            per_page: Количество статей на страницу
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
+
+        Returns:
+            Словарь со статьями без комментариев и информацией о пагинации
+        """
+        queryset = (
+            Article.objects.filter(status="published", comments__isnull=True)
+            .select_related("author")
+            .distinct()
+            .order_by(order_by)
+        )
+
+        paginator = Paginator(queryset, per_page)
+        page_obj = paginator.get_page(page)
+
+        return {
+            "articles": page_obj.object_list,
+            "page_obj": page_obj,
+            "is_paginated": page_obj.has_other_pages(),
+            "total_articles": paginator.count,
+        }
+
+    @staticmethod
+    def get_popular_articles(
+        limit: int = 5, status: str = "published"
+    ) -> List[Article]:
+        """
+        Получить популярные статьи на основе количества комментариев
+
+        Args:
+            limit: Количество статей для получения
+            status: Статус статей для фильтрации
+
+        Returns:
+            Список популярных статей
+        """
+        return (
+            Article.objects.select_related("author")
+            .filter(status=status)
+            .annotate(comment_count=Count("comments"))
+            .order_by("-comment_count")[:limit]
+        )
+
+    @staticmethod
+    def get_recent_articles(limit: int = 5, status: str = "published") -> List[Article]:
+        """
+        Получить последние статьи
+
+        Args:
+            limit: Количество статей для получения
+            status: Статус статей для фильтрации
+
+        Returns:
+            Список последних статей
+        """
+        return (
+            Article.objects.select_related("author")
+            .filter(status=status)
+            .annotate(comment_count=Count("comments"))
+            .order_by("-created_at")[:limit]
+        )
 
     @staticmethod
     def get_article_comment_count(article_id: int) -> int:
@@ -234,54 +339,6 @@ class ArticleDAO:
         """
         return (
             Article.objects.filter(status="published")
-            .annotate(comment_count=Count("comments"))
-            .order_by("-comment_count")[:limit]
-        )
-
-    @staticmethod
-    def get_articles_without_comments(
-        page: int = 1, per_page: int = 10
-    ) -> Dict[str, Any]:
-        """
-        Получить опубликованные статьи без комментариев
-
-        Args:
-            page: Номер страницы
-            per_page: Количество статей на страницу
-
-        Returns:
-            Словарь со статьями без комментариев и информацией о пагинации
-        """
-        queryset = (
-            Article.objects.filter(status="published", comments__isnull=True)
-            .select_related("author")
-            .distinct()
-        )
-
-        paginator = Paginator(queryset, per_page)
-        page_obj = paginator.get_page(page)
-
-        return {
-            "articles": page_obj.object_list,
-            "page_obj": page_obj,
-            "is_paginated": page_obj.has_other_pages(),
-            "total_articles": paginator.count,
-        }
-
-    @staticmethod
-    def get_popular_articles(limit: int = 5) -> List[Article]:
-        """
-        Получить популярные статьи на основе количества комментариев
-
-        Args:
-            limit: Количество статей для получения
-
-        Returns:
-            Список популярных статей
-        """
-        return (
-            Article.objects.select_related("author")
-            .filter(status="published")
             .annotate(comment_count=Count("comments"))
             .order_by("-comment_count")[:limit]
         )
@@ -439,7 +496,10 @@ class CommentDAO:
 
     @staticmethod
     def get_comments_for_article(
-        article_id: int, page: int = 1, per_page: int = 20
+        article_id: int,
+        page: int = 1,
+        per_page: int = 20,
+        order_by: str = "-created_at",
     ) -> Dict[str, Any]:
         """
         Получить комментарии для статьи с пагинацией
@@ -448,13 +508,17 @@ class CommentDAO:
             article_id: ID статьи
             page: Номер страницы
             per_page: Количество комментариев на страницу
+            order_by: Поле для сортировки, по умолчанию сначала новые ("-created_at")
 
         Returns:
             Словарь с комментариями и информацией о пагинации
         """
-        queryset = Comment.objects.select_related("author").filter(
-            article_id=article_id
+        queryset = (
+            Comment.objects.select_related("author")
+            .filter(article_id=article_id)
+            .order_by(order_by)
         )
+
         paginator = Paginator(queryset, per_page)
         page_obj = paginator.get_page(page)
 
@@ -464,6 +528,21 @@ class CommentDAO:
             "is_paginated": page_obj.has_other_pages(),
             "total_comments": paginator.count,
         }
+
+    @staticmethod
+    def get_recent_comments(limit: int = 5) -> List[Comment]:
+        """
+        Получить последние комментарии
+
+        Args:
+            limit: Количество комментариев для получения
+
+        Returns:
+            Список последних комментариев
+        """
+        return Comment.objects.select_related("author", "article").order_by(
+            "-created_at"
+        )[:limit]
 
     @staticmethod
     def create_comment(article_id: int, author_id: int, content: str) -> Comment:

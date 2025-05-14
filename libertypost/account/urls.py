@@ -5,5 +5,8 @@ app_name = "account"
 
 urlpatterns = [
     path("register/", views.register_view, name="register"),
-    # Другие URL-паттерны для аутентификации
+    path("login/", views.login_view, name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("profile/", views.profile, name="profile"),
+    path("profile/@<str:username>/", views.user_profile, name="user_profile"),
 ]

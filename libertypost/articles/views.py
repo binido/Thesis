@@ -1,33 +1,52 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils.timesince import timesince
+import markdown
 from .dao import ArticleDAO, CommentDAO, UserDAO
-from .models import Comment
 
 
 def articles(request: HttpRequest) -> HttpResponse:
-    articles = ArticleDAO.get_articles_with_comment_count()
+    articles_data = ArticleDAO.get_articles_with_comment_count()
+
+    for article in articles_data["articles"]:
+        if hasattr(article, "content") and article.content:
+            article.html_content = markdown.markdown(article.content)
+        else:
+            article.html_content = None
 
     data = {
-        "articles": articles["articles"],
+        "articles": articles_data["articles"],
     }
+
     return render(request, "articles/articles.html", data)
 
 
+
 def article(request: HttpRequest, article_id: int) -> HttpResponse:
+    if request.method == "POST" and request.user.is_authenticated:
+        comment_text = request.POST.get("comment", "").strip()
+        if comment_text:
+            CommentDAO.create_comment(
+                article_id=article_id,
+                author_id=request.user.id,
+                content=comment_text
+            )
+        return redirect("articles:article", article_id=article_id)
+
     article = ArticleDAO.get_article_by_id(
         article_id=article_id, prefetch_comments=True, prefetch_categories=True
     )
-    author = UserDAO.get_author_stats(
-                author_id=article.author.id
-            )
+    author = UserDAO.get_author_stats(author_id=article.author.id)
     comments = CommentDAO.get_comments_for_article(article_id=article.id)
+
+    content = article.content
+    content = markdown.markdown(content) if content else None
 
     data = {
         "article": {
             "id": article.id,
             "title": article.title,
-            "content": article.content,
+            "content": content,
             "author_name": article.author.username,
             "author_avatar": article.author.image.url if article.author.image else None,
             "categories": [cat.name for cat in article.categories.all()],
@@ -37,14 +56,33 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
             "source": article.source,
             "total_articles": author["total_articles"],
             "comments": comments["comments"],
+            "url": article.get_absolute_url(),
         }
     }
     return render(request, "articles/article.html", context=data)
 
 
+
 def create_article(request: HttpRequest) -> HttpResponse:
-    data = {"form": {}}
-    return render(request, "articles/create_article.html", context=data)
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        content = request.POST.get("content", "").strip()
+        source = request.POST.get("link", "").strip()
+        category_ids = request.POST.getlist("cats")
+        image = request.FILES.get("file")
+
+        if all([title, content, source, category_ids]):
+            ArticleDAO.create_article(
+                author_id=request.user.id,
+                title=title,
+                content=content,
+                source=source,
+                category_ids=[int(c) for c in category_ids],
+                image=image,
+            )
+            return redirect("home")  # или куда нужно
+
+    return render(request, "articles/create_article.html", context={})
 
 
 def update_article(request: HttpRequest, article_id: int) -> HttpResponse:
@@ -58,10 +96,31 @@ def delete_article(request: HttpRequest, article_id: int) -> HttpResponse:
 
 
 def category(request: HttpRequest, category_slug: str) -> HttpResponse:
-    data = {"category": {"slug": category_slug}, "articles": []}
-    return render(request, "articles/category.html", context=data)
+    articles = ArticleDAO.get_articles_by_category(category_slug=category_slug)
+
+    for article in articles["articles"]:
+        if hasattr(article, "content") and article.content:
+            article.html_content = markdown.markdown(article.content)
+        else:
+            article.html_content = None
+
+    return render(request, "articles/category.html", context=articles)
 
 
 def search(request: HttpRequest) -> HttpResponse:
-    data = {"query": request.GET.get("q", ""), "articles": []}
-    return render(request, "articles/search.html", context=data)
+    query = request.GET.get("query", "")
+    sort = request.GET.get("sort", "-created_at")
+    category_slug = request.GET.get("category")
+    page = request.GET.get("page", 1)
+
+    articles = ArticleDAO.search_articles(
+        query=query, page=page, per_page=10, order_by=sort, category_slug=category_slug
+    )
+
+    for article in articles["articles"]:
+        if hasattr(article, "content") and article.content:
+            article.html_content = markdown.markdown(article.content)
+        else:
+            article.html_content = None
+
+    return render(request, "articles/search.html", context=articles)

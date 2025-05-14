@@ -1,0 +1,80 @@
+{% extends "articles/main.html" %} {% block main_content %}
+
+<div class="card form-label"><h2>Создание статьи</h2></div>
+
+<form
+    method="post"
+    enctype="multipart/form-data"
+    class="card card-padding card-form"
+>
+    {% csrf_token %}
+
+    <div class="form-header">
+        <div class="flex-col">
+            <div class="form-header-item">
+                <label for="link">Источник</label>
+                <input type="url" name="link" id="link" required />
+            </div>
+            <a href="">Руководство авторам</a>
+        </div>
+
+        <div class="form-header-item">
+            <label for="cats">Категории</label>
+            <div class="multiselect" id="multiselect">
+                <div class="multiselect-selector" id="multiselect-selector">
+                    <span class="multiselect-placeholder">Не выбрано</span>
+                    <span class="multiselect-arrow">▼</span>
+                </div>
+                <div class="multiselect-dropdown" id="multiselect-dropdown">
+                </div>
+            </div>
+            <select
+                name="cats"
+                id="cats"
+                multiple="multiple"
+                size="3"
+                required
+                class="hidden-select"
+            >
+            {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-body">
+        <input
+            type="text"
+            name="title"
+            id="title"
+            placeholder="Заголовок"
+            required
+            minlength="10"
+        />
+        <textarea
+            name="content"
+            id="content"
+            placeholder="Текст статьи"
+            required
+            minlength="200"
+        ></textarea>
+    </div>
+
+    <hr />
+
+    <div class="flex-row">
+        <div class="file-input-wrapper">
+            <label for="file-upload" class="file-input-label"
+                >Выбрать изображение</label
+            >
+            <input type="file" name="file" id="file-upload" accept="image/*" />
+            <span class="file-name">Файл не выбран</span>
+        </div>
+        <input type="submit" value="Отправить на модерацию" />
+    </div>
+</form>
+
+{% endblock %}

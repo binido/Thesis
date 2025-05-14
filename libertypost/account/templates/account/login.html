@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="auth-container flex-col">
+    <div class="form-container">
+        <form method="POST">
+            {% csrf_token %}
+            <h2>Вход</h2>
+            
+            {% if form.errors %}
+            <div class="auth-error">
+                <p>Неверный логин или пароль</p>
+            </div>
+            {% endif %}
+            
+            <span>
+                <label for="id_username">Email или Никнейм</label>
+                {{ form.username }}
+            </span>
+            <span>
+                <label for="id_password">Пароль</label>
+                {{ form.password }}
+            </span>
+            <input type="submit" value="Войти">
+        </form>
+    </div>
+    <div class="auth-additional">
+        <p>Еще нет аккаунта? <a href="{% url 'account:register' %}">Зарегистрируйтесь</a></p>
+    </div>
+</div>
+{% endblock %}
