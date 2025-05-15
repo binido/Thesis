@@ -1,39 +1,36 @@
 version: '3.8'
 
 services:
-  web:
-    build: .
-    restart: always
-    volumes:
-      - ./libertypost/staticfiles:/app/libertypost/staticfiles  # Изменено на staticfiles
-      - ./libertypost/media:/app/libertypost/media
-      - ./libertypost/static:/app/libertypost/static  # Важно также монтировать папку static
-    env_file:
-      - ./.env
-    depends_on:
-      - db
+    web:
+        build: .
+        restart: always
+        volumes:
+            - ./libertypost/staticfiles:/app/libertypost/staticfiles
+            - ./libertypost/media:/app/libertypost/media
+            - ./libertypost/static:/app/libertypost/static
+        env_file:
+            - ./.env
+        depends_on:
+            - db
 
-  db:
-    image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./.env
-    environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+    db:
+        image: postgres:15
+        volumes:
+            - ./postgres_data:/var/lib/postgresql/data/
+        env_file:
+            - ./.env
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_NAME}
 
-  nginx:
-    image: nginx:1.25
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./libertypost/staticfiles:/app/libertypost/staticfiles  # Изменено на staticfiles
-      - ./libertypost/media:/app/libertypost/media
-    depends_on:
-      - web
-
-volumes:
-  postgres_data:
+    nginx:
+        image: nginx:1.25
+        ports:
+            - '80:80'
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - ./libertypost/staticfiles:/app/libertypost/staticfiles
+            - ./libertypost/media:/app/libertypost/media
+        depends_on:
+            - web

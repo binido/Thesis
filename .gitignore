@@ -8,6 +8,8 @@ local_settings.py
 db.sqlite3-journal
 # media
 
+postgres_data/*
+
 # Файлы миграций - раскомментируйте, если они не должны быть в репозитории
 # */migrations/*.py
 # !*/migrations/__init__.py
