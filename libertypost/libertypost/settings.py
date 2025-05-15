@@ -139,6 +139,9 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# Добавить эту строку для админки
+ADMIN_MEDIA_PREFIX = "/static/admin/"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

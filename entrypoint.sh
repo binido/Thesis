@@ -7,9 +7,9 @@
 echo "Applying migrations..."
 python libertypost/manage.py migrate
 
-# Сборка статических файлов
+# Сборка статических файлов с подробным выводом
 echo "Collecting static files..."
-python libertypost/manage.py collectstatic --noinput
+python libertypost/manage.py collectstatic --noinput --verbosity 2
 
 # Создание суперпользователя, если не существует
 echo "Creating superuser..."
