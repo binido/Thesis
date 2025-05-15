@@ -1,28 +1,35 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
+# Установка рабочей директории
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Установка зависимостей
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
+    python3-dev \
+    dos2unix \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Копирование зависимостей
 COPY requirements.txt .
+
+# Установка зависимостей Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project files
+# Копирование проекта
 COPY . .
 
-# Create media and static directories
-RUN mkdir -p libertypost/media libertypost/static
+# Создаем и настраиваем entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
+# Преобразуем CRLF в LF и делаем файл исполняемым
+RUN dos2unix /entrypoint.sh && chmod +x /entrypoint.sh
 
-# Run migrations and collect static files
-RUN cd libertypost && python manage.py migrate
-RUN cd libertypost && python manage.py collectstatic --noinput
+# Переменные среды
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Expose port
+# Порт для gunicorn
 EXPOSE 8000
 
-# Command to run the application
-CMD ["python", "libertypost/manage.py", "runserver", "0.0.0.0:8000"]
+# Запуск через entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]

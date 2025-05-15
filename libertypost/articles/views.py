@@ -1,13 +1,19 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.timesince import timesince
 from django.contrib.auth.decorators import login_required
 import markdown
 from .dao import ArticleDAO, CommentDAO, UserDAO
 
 
 def articles(request: HttpRequest) -> HttpResponse:
-    articles_data = ArticleDAO.get_articles_with_comment_count()
+    page = request.GET.get("page", 1)
+
+    try:
+        page = int(page)
+    except ValueError:
+        page = 1
+
+    articles_data = ArticleDAO.get_articles_with_comment_count(page=page)
 
     for article in articles_data["articles"]:
         if hasattr(article, "content") and article.content:
@@ -17,6 +23,9 @@ def articles(request: HttpRequest) -> HttpResponse:
 
     data = {
         "articles": articles_data["articles"],
+        "page_obj": articles_data["page_obj"],
+        "is_paginated": articles_data["is_paginated"],
+        "total_articles": articles_data["total_articles"],
     }
 
     return render(request, "articles/articles.html", data)
