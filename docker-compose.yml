@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - media_volume:/app/libertypost/media
+      - static_volume:/app/libertypost/static
+    environment:
+      - DEBUG=1
+      - PYTHONUNBUFFERED=1
+
+volumes:
+  media_volume:
+  static_volume:

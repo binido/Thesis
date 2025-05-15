@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "articles.apps.ArticlesConfig",
     "account.apps.AccountConfig",
+    "core"
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "articles.middleware.AdminAccessMiddleware",
 ]
 
 ROOT_URLCONF = "libertypost.urls"
@@ -160,8 +162,8 @@ JAZZMIN_SETTINGS = {
         {"app": "polls"},
     ],
     "show_ui_builder": True,
-    "ui_theme": "darkly",
-    "dark_mode_theme": "darkly",
+    "ui_theme": "cyborg",
+    "dark_mode_theme": "cyborg",
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
@@ -193,8 +195,8 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-    "theme": "darkly",
-    "dark_mode_theme": "darkly",
+    "theme": "sandstone",
+    # "dark_mode_theme": "cyborg",
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-secondary",

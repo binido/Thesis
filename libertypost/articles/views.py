@@ -53,7 +53,7 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
             "author_avatar": article.author.image.url if article.author.image else None,
             "categories": [cat.name for cat in article.categories.all()],
             "image": article.image.url if article.image else None,
-            "published_ago": timesince(article.created_at) + " назад",
+            "published_ago": article.created_at,
             "comment_count": article.comment_count,
             "source": article.source,
             "total_articles": author["total_articles"],

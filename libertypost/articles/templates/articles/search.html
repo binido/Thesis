@@ -1,5 +1,6 @@
 {% extends "articles/main.html" %} 
 {% block main_content %} 
+{% load custom_filters %}
 
 <div class="card p-10 flex-col g-16 card-search">
     <form method="get">
@@ -22,7 +23,7 @@
             <img src="{{ article.author.image.url|default:'https://placehold.co/32x32' }}" alt="" />
             <p>{{ article.author.username }}</p>
         </a>
-        <p>{{ article.created_at|timesince }} назад</p>
+        <p>{{ article.created_at|timesince_one_level }} назад</p>
     </div>
     <div class="card-header">
         <a href="{% url 'articles:article' article.id %}" class="article-title">

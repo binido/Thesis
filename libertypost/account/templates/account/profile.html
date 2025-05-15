@@ -1,4 +1,5 @@
 {% extends "articles/main.html" %} 
+{% load custom_filters %}
 {% block main_content %} 
 <div class="card user-profile flex-col">
     <div class="user-profile-header flex-row">
@@ -18,9 +19,10 @@
     <div class="flex-row g-16">
         <b>Зарегистрирован</b>
         <p>{{ user_profile.date_joined|date:"d.m.Y" }}</p>
+        <p>({{ user_profile.date_joined|timesince_one_level }} назад)</p>
     </div>
     
-    {% if is_own_profile %}
+    {% if is_own_profile and not user_profile.is_superuser %}
     <div class="user-profile-footer">
         <ul class="flex-row">
             <li><a href="{% url 'account:profile_status' 'published' %}" {% if current_status == 'published' %}class="active"{% endif %}>Опубликовано ({{ user_stats.published_count }})</a></li>
@@ -31,7 +33,7 @@
     {% endif %}
 </div>
 
-{% if articles %}
+{% if articles and not user_profile.is_superuser %}
     {% for article in articles %}
         <div class="card card-article card-padding">
             <div class="card-info flex-row">
@@ -43,7 +45,7 @@
                     {% endif %}
                     <p>{{ article.author.username }}</p>
                 </a>
-                <p>{{ article.created_at|timesince }} назад</p>
+                <p>{{ article.created_at|timesince_one_level }} назад</p>
             </div>
             <div class="card-header">
                 <a href="{% url 'articles:article' article.id %}" class="article-title">

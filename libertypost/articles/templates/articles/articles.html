@@ -1,4 +1,5 @@
 {% extends "articles/main.html" %} 
+{% load custom_filters %}
 {% block main_content %} 
 {% for article in articles %}
 <div class="card card-article card-padding">
@@ -7,7 +8,7 @@
             <img src="{{ article.author.image.url|default:'https://placehold.co/32x32' }}" alt="" />
             <p>{{ article.author.username }}</p>
         </a>
-        <p>{{ article.created_at|timesince }} назад</p>
+        <p>{{ article.created_at|timesince_one_level }} назад</p>
     </div>
     <div class="card-header">
         <a href="{% url 'articles:article' article.id %}" class="article-title">

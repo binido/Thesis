@@ -1,4 +1,5 @@
 {% extends "articles/main.html" %} {% block main_content %}
+{% load custom_filters %}
 
 <div class="card card-article card-padding">
     <div class="card-info flex-row">
@@ -12,7 +13,7 @@
             />
             <p>{{ article.author_name }}</p>
         </a>
-        <p>{{ article.published_ago }}</p>
+        <p>{{ article.published_ago|timesince_one_level }} назад</p>
     </div>
 
     <div class="card-header">
@@ -118,7 +119,7 @@
                     />
                     <p>{{ comment.author.username }}</p>
                 </a>
-                <p>{{ comment.created_at|timesince }} назад</p>
+                <p>{{ comment.created_at|timesince_one_level }} назад</p>
             </div>
             <div class="comment-body">{{ comment.content }}</div>
         </li>
