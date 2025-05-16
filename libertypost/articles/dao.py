@@ -1,9 +1,11 @@
-from django.db.models import Q, Count, Prefetch, F, OuterRef, Subquery
-from .models import Article, Category, Comment, User
-from django.shortcuts import get_object_or_404
-from typing import List, Dict, Any, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import Count, F, OuterRef, Prefetch, Q, Subquery
+from django.shortcuts import get_object_or_404
+
+from .models import Article, Category, Comment, User
 
 
 class ArticleDAO:
@@ -433,19 +435,20 @@ class ArticleDAO:
             return article
 
     @staticmethod
-    def delete_article(article_id: int) -> bool:
+    def delete_article(article_id: int) -> Article:
         """
-        Удалить статью по ID
+        Архивировать статью вместо фактического удаления
 
         Args:
             article_id: ID статьи
 
         Returns:
-            True если статья успешно удалена
+            Архивированная статья
         """
         article = get_object_or_404(Article, id=article_id)
-        article.delete()
-        return True
+        article.status = "archived"
+        article.save()
+        return article
 
 
 class CategoryDAO:

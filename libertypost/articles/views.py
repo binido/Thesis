@@ -1,8 +1,9 @@
+import markdown
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required
-import markdown
-from .dao import ArticleDAO, CommentDAO, UserDAO
+
+from .dao import ArticleDAO, CategoryDAO, CommentDAO, UserDAO
 
 
 def articles(request: HttpRequest) -> HttpResponse:
@@ -49,6 +50,10 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
     content = article.content
     content = markdown.markdown(content) if content else None
 
+    is_owner = False
+    if request.user.is_authenticated:
+        is_owner = request.user.id == article.author.id
+
     data = {
         "article": {
             "id": article.id,
@@ -69,6 +74,7 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
         "page_obj": comments["page_obj"],
         "is_paginated": comments["is_paginated"],
         "total_comments": comments["total_comments"],
+        "is_owner": is_owner,
     }
     return render(request, "articles/article.html", context=data)
 
@@ -96,14 +102,54 @@ def create_article(request: HttpRequest) -> HttpResponse:
     return render(request, "articles/create_article.html")
 
 
+@login_required
 def update_article(request: HttpRequest, article_id: int) -> HttpResponse:
-    data = {"form": {}, "article": {"id": article_id}}
-    return render(request, "articles/update_article.html", context=data)
+    article = ArticleDAO.get_article_by_id(article_id, prefetch_categories=True)
+
+    if request.user.id != article.author.id:
+        return redirect("home")
+
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        content = request.POST.get("content", "").strip()
+        source = request.POST.get("link", "").strip()
+        category_ids = request.POST.getlist("cats")
+        image = request.FILES.get("file")
+
+        if all([title, content, source, category_ids]):
+            ArticleDAO.update_article(
+                article_id=article_id,
+                title=title,
+                content=content,
+                source=source,
+                category_ids=[int(c) for c in category_ids],
+                image=image if image else None,
+                status="moderated",
+            )
+            return redirect("home")
+
+    categories = CategoryDAO.get_all_categories()
+
+    current_category_ids = [category.id for category in article.categories.all()]
+
+    context = {
+        "article": article,
+        "categories": categories,
+        "current_category_ids": current_category_ids,
+    }
+
+    return render(request, "articles/update_article.html", context=context)
 
 
+@login_required
 def delete_article(request: HttpRequest, article_id: int) -> HttpResponse:
-    data = {"article": {"id": article_id}}
-    return render(request, "articles/delete_article.html", context=data)
+    article = ArticleDAO.get_article_by_id(article_id)
+
+    if request.user.id != article.author.id:
+        return redirect("home")
+
+    ArticleDAO.delete_article(article_id)
+    return redirect("home")
 
 
 def category(request: HttpRequest, category_slug: str) -> HttpResponse:

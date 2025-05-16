@@ -41,10 +41,15 @@
                 <a href="{{ article.source }}">{{ article.source }}</a>
             </p>
         </div>
-        {% if request.user == article.author %}
-        <button class="btn-modify" onclick="document.location.href=``">
-            Редактировать
-        </button>
+        {% if is_owner %}
+        <div class="btn-user-block">
+            <button class="btn-modify btn-modify-secondary" onclick="document.location.href=`{% url 'articles:update_article' article.id %}`">
+                Редактировать
+            </button>
+            <button class="btn-modify btn-modify-accent" onclick="document.location.href=`{% url 'articles:delete_article' article.id %}`">
+                Удалить
+            </button>
+        </div>
         {% endif %}
 
         <div class="interactive flex-row">

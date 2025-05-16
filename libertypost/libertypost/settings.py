@@ -89,8 +89,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "account.backends.EmailOrUsernameBackend",
-    # "django.contrib.auth.backends.ModelBackend",  # Стандартный бэкенд Django
+    # "account.backends.EmailOrUsernameBackend",
+    "django.contrib.auth.backends.ModelBackend",  # Стандартный бэкенд Django
 ]
 
 
@@ -181,7 +181,6 @@ JAZZMIN_UI_TWEAKS = {
     },
 }
 
-# HTTPS settings
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True

@@ -1,0 +1,89 @@
+{% extends "articles/main.html" %} {% block main_content %}
+
+<div class="card form-label"><h2>Редактирование статьи</h2></div>
+
+<form
+    method="post"
+    enctype="multipart/form-data"
+    class="card card-padding card-form"
+>
+    {% csrf_token %}
+
+    <div class="form-header">
+        <div class="flex-col">
+            <div class="form-header-item">
+                <label for="link">Источник</label>
+                <input type="url" name="link" id="link" required value="{{ article.source }}" />
+            </div>
+            <a href="">Руководство авторам</a>
+        </div>
+
+        <div class="form-header-item">
+            <label for="cats">Категории</label>
+            <div class="multiselect" id="multiselect">
+                <div class="multiselect-selector" id="multiselect-selector">
+                    <span class="multiselect-placeholder">Выбрано: {{ article.categories.all|length }}</span>
+                    <span class="multiselect-arrow">▼</span>
+                </div>
+                <div class="multiselect-dropdown" id="multiselect-dropdown">
+                </div>
+            </div>
+            <select
+                name="cats"
+                id="cats"
+                multiple="multiple"
+                size="3"
+                required
+                class="hidden-select"
+            >
+            {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id in current_category_ids %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-body">
+        <input
+            type="text"
+            name="title"
+            id="title"
+            placeholder="Заголовок"
+            required
+            minlength="10"
+            value="{{ article.title }}"
+        />
+        <textarea
+            name="content"
+            id="content"
+            placeholder="Текст статьи"
+            required
+            minlength="200"
+        >{{ article.content }}</textarea>
+    </div>
+
+    <hr />
+
+    <div class="flex-row">
+        <div class="file-input-wrapper">
+            <label for="file-upload" class="file-input-label"
+                >{% if article.image %}Изменить изображение{% else %}Выбрать изображение{% endif %}</label
+            >
+            <input type="file" name="file" id="file-upload" accept="image/*" />
+            <span class="file-name">{% if article.image %}{{ article.image.name }}{% else %}Файл не выбран{% endif %}</span>
+        </div>
+        <input type="submit" value="Отправить на модерацию" />
+    </div>
+    
+    {% if article.image %}
+    <div class="current-image">
+        <p>Текущее изображение:</p>
+        <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 300px; margin-top: 10px;" />
+        <p class="image-note">Загрузите новое изображение, чтобы заменить текущее, или оставьте поле пустым, чтобы сохранить текущее изображение.</p>
+    </div>
+    {% endif %}
+</form>
+
+{% endblock %}

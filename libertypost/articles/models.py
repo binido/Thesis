@@ -1,7 +1,6 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.urls import reverse
-
 
 User = get_user_model()
 
@@ -21,6 +20,7 @@ class Article(models.Model):
             ("moderated", "В модерации"),
             ("published", "Опубликовано"),
             ("rejected", "Отклонено"),
+            ("archived", "Архивированно"),
         ],
         default="moderated",
         verbose_name="Статус",

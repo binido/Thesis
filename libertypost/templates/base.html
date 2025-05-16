@@ -18,7 +18,7 @@
             src="https://kit.fontawesome.com/86e3599ebf.js"
             crossorigin="anonymous"
         ></script>
-        <title>{{ title|default:"Без заголовка" }} | LibertyPost</title>
+        <title>{{ title }} {% if title %}| {% endif %}LibertyPost</title>
     </head>
     <body>
         {% block content %} {% endblock %}

@@ -13,12 +13,10 @@ class EmailOrUsernameBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
-            # Проверяем, что пользователь существует по email ИЛИ по username
             user = UserModel.objects.get(Q(email=username) | Q(username=username))
         except UserModel.DoesNotExist:
             return None
         else:
-            # Проверяем пароль
             if user.check_password(password) and self.user_can_authenticate(user):
                 return user
         return None

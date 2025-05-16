@@ -26,7 +26,6 @@
                         <i class="fa-solid fa-user-shield fa-lg"></i>
                     </a>
                     {% endif %}
-                    <!-- Для зарегистрированных пользователей показываем аватар -->
                     <a href="{% url 'account:profile' %}">
                         {% if user.image %}
                             <img class="avatar" src="{{ user.image.url }}" alt="{{ user.username }}" />
@@ -35,7 +34,6 @@
                         {% endif %}
                     </a>
                 {% else %}
-                    <!-- Для незарегистрированных пользователей показываем ссылку на вход -->
                     <a href="{% url 'account:login' %}">
                         <i class="fa-solid fa-right-to-bracket fa-lg"></i>
                     </a>

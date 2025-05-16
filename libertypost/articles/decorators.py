@@ -1,8 +1,9 @@
-from django.shortcuts import redirect
-from django.urls import reverse
-from django.http import HttpRequest
 from functools import wraps
 from typing import Callable
+
+from django.http import HttpRequest
+from django.shortcuts import redirect
+from django.urls import reverse
 
 
 def admin_required(view_func: Callable) -> Callable:

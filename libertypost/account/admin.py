@@ -18,5 +18,4 @@ class UserAdmin(admin.ModelAdmin):
     avatar_preview.short_description = "Аватарка"
 
 
-# Регистрируем модель с кастомным админом
 admin.site.register(User, UserAdmin)

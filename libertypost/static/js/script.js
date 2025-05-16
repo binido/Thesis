@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Обработка выбора файла
     const fileInput = document.getElementById('file-upload');
     const fileName = document.querySelector('.file-name');
 
@@ -69,23 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function copyLink(link) {
-    // Создаем временный элемент для копирования
     const tempInput = document.createElement('input');
     tempInput.value = link;
     document.body.appendChild(tempInput);
     
-    // Выделяем и копируем текст
     tempInput.select();
     document.execCommand('copy');
     
-    // Удаляем временный элемент
     document.body.removeChild(tempInput);
     
-    // Показываем уведомление
     const toast = document.querySelector('.toast');
     toast.classList.add('show');
     
-    // Скрываем уведомление через 2 секунды
     setTimeout(() => {
         toast.classList.remove('show');
     }, 2000);

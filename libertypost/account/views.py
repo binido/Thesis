@@ -1,12 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-
-from .models import User
 from articles.dao import ArticleDAO, UserDAO
-from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import CustomAuthenticationForm, CustomUserCreationForm
+from .models import User
 
 
 def register_view(request):
@@ -19,9 +18,8 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Регистрация прошла успешно!")
-            return redirect("home")  # Замените на свой URL
+            return redirect("home")
         else:
-            # Если форма невалидна, покажем ошибки в шаблоне
             return render(request, "account/register.html", {"form": form})
     else:
         form = CustomUserCreationForm()
@@ -35,15 +33,13 @@ def login_view(request):
     if request.method == "POST":
         form = CustomAuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get(
-                "username"
-            )  # Может быть email или username
+            username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
                 messages.info(request, f"Вы вошли как {user.username}")
-                return redirect("home")  # Замените на свой URL
+                return redirect("home")
             else:
                 messages.error(request, "Неверный логин или пароль")
         else:
@@ -59,7 +55,7 @@ def logout_view(request):
     """
     logout(request)
     messages.info(request, "Вы успешно вышли из системы")
-    return redirect("home")  # Переадресация на страницу входа
+    return redirect("home")
 
 
 @login_required
@@ -74,7 +70,6 @@ def profile(request, status="published"):
     user = request.user
     page = request.GET.get("page", 1)
 
-    # Получаем статьи пользователя с выбранным статусом
     result = ArticleDAO.get_articles_by_author(
         author_id=user.id,
         status=status,
@@ -83,10 +78,8 @@ def profile(request, status="published"):
         order_by="-created_at",
     )
 
-    # Получаем статистику пользователя
     user_stats = UserDAO.get_author_stats(user.id)
 
-    # Формируем контекст для шаблона
     context = {
         "user_profile": user,
         "articles": result["articles"],
@@ -95,7 +88,7 @@ def profile(request, status="published"):
         "total_articles": result["total_articles"],
         "user_stats": user_stats,
         "current_status": status,
-        "is_own_profile": True,  # Это профиль текущего пользователя
+        "is_own_profile": True,
     }
 
     return render(request, "account/profile.html", context)
@@ -112,7 +105,6 @@ def user_profile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     page = request.GET.get("page", 1)
 
-    # Получаем только опубликованные статьи
     result = ArticleDAO.get_articles_by_author(
         author_id=user.id,
         status="published",
@@ -121,14 +113,12 @@ def user_profile(request, user_id):
         order_by="-created_at",
     )
 
-    # Получаем статистику пользователя
     user_stats = {
         "published_count": result["total_articles"],
-        "moderated_count": 0,  # Не показываем для других пользователей
-        "rejected_count": 0,  # Не показываем для других пользователей
+        "moderated_count": 0,
+        "rejected_count": 0,
     }
 
-    # Проверяем, является ли текущий пользователь владельцем профиля
     is_own_profile = request.user.is_authenticated and request.user.id == user.id
 
     if is_own_profile:
