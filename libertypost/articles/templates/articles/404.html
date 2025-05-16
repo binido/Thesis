@@ -1,0 +1,10 @@
+{% extends "articles/main.html" %} 
+{% block main_content %}
+<div class="error-page card">
+    <div class="error-block">
+        <h1>404</h1>
+        <p>Упс! Что-то пошло не так, этой страницы не существует</p>
+        <a href="{% url 'home' %}">Вернуться на главную</a>
+    </div>
+</div>
+{% endblock main_content %}

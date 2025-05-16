@@ -31,15 +31,12 @@ def articles(request: HttpRequest) -> HttpResponse:
     return render(request, "articles/articles.html", data)
 
 
-
 def article(request: HttpRequest, article_id: int) -> HttpResponse:
     if request.method == "POST" and request.user.is_authenticated:
         comment_text = request.POST.get("comment", "").strip()
         if comment_text:
             CommentDAO.create_comment(
-                article_id=article_id,
-                author_id=request.user.id,
-                content=comment_text
+                article_id=article_id, author_id=request.user.id, content=comment_text
             )
         return redirect("articles:article", article_id=article_id)
 
@@ -68,7 +65,10 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
             "total_articles": author["total_articles"],
             "comments": comments["comments"],
             "url": article.get_absolute_url(),
-        }
+        },
+        "page_obj": comments["page_obj"],
+        "is_paginated": comments["is_paginated"],
+        "total_comments": comments["total_comments"],
     }
     return render(request, "articles/article.html", context=data)
 
@@ -107,15 +107,24 @@ def delete_article(request: HttpRequest, article_id: int) -> HttpResponse:
 
 
 def category(request: HttpRequest, category_slug: str) -> HttpResponse:
-    articles = ArticleDAO.get_articles_by_category(category_slug=category_slug)
+    page = request.GET.get("page", 1)
 
-    for article in articles["articles"]:
+    try:
+        page = int(page)
+    except ValueError:
+        page = 1
+
+    articles_data = ArticleDAO.get_articles_by_category(
+        category_slug=category_slug, page=page
+    )
+
+    for article in articles_data["articles"]:
         if hasattr(article, "content") and article.content:
             article.html_content = markdown.markdown(article.content)
         else:
             article.html_content = None
 
-    return render(request, "articles/category.html", context=articles)
+    return render(request, "articles/category.html", context=articles_data)
 
 
 def search(request: HttpRequest) -> HttpResponse:
@@ -124,14 +133,23 @@ def search(request: HttpRequest) -> HttpResponse:
     category_slug = request.GET.get("category")
     page = request.GET.get("page", 1)
 
-    articles = ArticleDAO.search_articles(
+    try:
+        page = int(page)
+    except ValueError:
+        page = 1
+
+    articles_data = ArticleDAO.search_articles(
         query=query, page=page, per_page=10, order_by=sort, category_slug=category_slug
     )
 
-    for article in articles["articles"]:
+    for article in articles_data["articles"]:
         if hasattr(article, "content") and article.content:
             article.html_content = markdown.markdown(article.content)
         else:
             article.html_content = None
 
-    return render(request, "articles/search.html", context=articles)
+    return render(request, "articles/search.html", context=articles_data)
+
+
+def page_not_found_view(request: HttpRequest, exception) -> HttpResponse:
+    return render(request, "articles/404.html", status=404)

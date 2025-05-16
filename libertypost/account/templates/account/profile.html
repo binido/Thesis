@@ -22,7 +22,7 @@
         <p>({{ user_profile.date_joined|timesince_one_level }} назад)</p>
     </div>
     
-    {% if is_own_profile and not user_profile.is_superuser %}
+    {% if is_own_profile %}
     <div class="user-profile-footer">
         <ul class="flex-row">
             <li><a href="{% url 'account:profile_status' 'published' %}" {% if current_status == 'published' %}class="active"{% endif %}>Опубликовано ({{ user_stats.published_count }})</a></li>
@@ -33,7 +33,7 @@
     {% endif %}
 </div>
 
-{% if articles and not user_profile.is_superuser %}
+{% if articles %}
     {% for article in articles %}
         <div class="card card-article card-padding">
             <div class="card-info flex-row">
@@ -83,21 +83,8 @@
         {% endif %}
     {% endfor %}
     
-    {% if is_paginated %}
-    <div class="pagination">
-        {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; Первая</a>
-            <a href="?page={{ page_obj.previous_page_number }}">Предыдущая</a>
-        {% endif %}
+    {% include "articles/includes/paginator.html" %}
 
-        <span class="current-page">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-        
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">Следующая</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя &raquo;</a>
-        {% endif %}
-    </div>
-    {% endif %}
     
 {% else %}
     <div class="no-articles card">Нет ни одной публикации</div>

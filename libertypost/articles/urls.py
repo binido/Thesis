@@ -12,3 +12,4 @@ urlpatterns = [
     path("category/<slug:category_slug>/", views.category, name="category"),
     path("search/", views.search, name="search"),
 ]
+

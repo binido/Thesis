@@ -12,15 +12,15 @@
         <div class="footer-body">
             <div class="footer-col flex-col">
                 <p>Ваш независимый источник информации</p>
-                <a href="">
+                <a href="https://github.com/binido/Thesis" target="_blank" rel="noopener">
                     <img src="{% static 'images/github.svg' %}" alt="" />
                 </a>
             </div>
             <div class="footer-col list flex-col">
                 <p>управление</p>
                 <ul>
-                    <li><a href="">Профиль</a></li>
-                    <li><a href="">Создать</a></li>
+                    <li><a href="{% url 'account:profile' %}">Профиль</a></li>
+                    <li><a href="{% url 'articles:create_article' %}">Создать</a></li>
                     <li><a href="">О проекте</a></li>
                     <li><a href="">Лицензия</a></li>
                     <li><a href="">Правообладателям</a></li>

@@ -131,4 +131,6 @@
     <h5>Комментарии</h5>
     <p class="no-comments">Комментариев пока нет, будьте первым!</p>
 </div>
-{% endif %} {% endblock main_content %}
+{% endif %}
+{% include "articles/includes/paginator.html" %}
+{% endblock main_content %}

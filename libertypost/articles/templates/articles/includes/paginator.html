@@ -8,7 +8,7 @@
             <li class="disabled"><span><i class="fas fa-angle-double-left"></i></span></li>
             <li class="disabled"><span><i class="fas fa-angle-left"></i></span></li>
         {% endif %}
-        
+
         {% for i in page_obj.paginator.page_range %}
             {% if page_obj.number == i %}
                 <li class="active">{{ i }}</li>
@@ -16,7 +16,7 @@
                 <li><a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a></li>
             {% endif %}
         {% endfor %}
-        
+
         {% if page_obj.has_next %}
             <li><a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i class="fas fa-angle-right"></i></a></li>
             <li><a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"><i class="fas fa-angle-double-right"></i></a></li>

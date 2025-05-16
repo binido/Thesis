@@ -18,11 +18,9 @@
                     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
                 </a>
                 {% if user.is_authenticated %}
-                    {% if not user.is_superuser %}
                     <a href="{% url 'articles:create_article' %}">
                         <i class="fa-solid fa-pen fa-lg"></i>
                     </a>
-                    {% endif %}
                     {% if user.is_superuser %}
                     <a href="{% url 'admin:index' %}">
                         <i class="fa-solid fa-user-shield fa-lg"></i>
