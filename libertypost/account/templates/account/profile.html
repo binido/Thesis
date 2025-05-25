@@ -25,9 +25,9 @@
     {% if is_own_profile %}
     <div class="user-profile-footer">
         <ul class="flex-row">
-            <li><a href="{% url 'account:profile_status' 'published' %}" {% if current_status == 'published' %}class="active"{% endif %}>Опубликовано ({{ user_stats.published_count }})</a></li>
-            <li><a href="{% url 'account:profile_status' 'moderated' %}" {% if current_status == 'moderated' %}class="active"{% endif %}>На модерации ({{ user_stats.moderated_count }})</a></li>
-            <li><a href="{% url 'account:profile_status' 'rejected' %}" {% if current_status == 'rejected' %}class="active"{% endif %}>Отклонено ({{ user_stats.rejected_count }})</a></li>
+            <li><a href="{% url 'account:profile_status' 'published' %}" {% if current_status == 'published' %}class="active"{% endif %}>Опубликовано</a></li>
+            <li><a href="{% url 'account:profile_status' 'moderated' %}" {% if current_status == 'moderated' %}class="active"{% endif %}>На модерации</a></li>
+            <li><a href="{% url 'account:profile_status' 'rejected' %}" {% if current_status == 'rejected' %}class="active"{% endif %}>Отклонено</a></li>
         </ul>
     </div>
     {% endif %}

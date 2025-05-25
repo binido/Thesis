@@ -1,16 +1,11 @@
-{% extends "articles/main.html" %} {% block main_content %}
+{% extends "articles/main.html" %}
+{% block main_content %}
 {% load custom_filters %}
 
 <div class="card card-article card-padding">
     <div class="card-info flex-row">
-        <a
-            href="{% url 'account:user_profile' article.author_id %}"
-            class="user-info flex-row"
-        >
-            <img
-                src="{{ article.author_avatar|default:'https://placehold.co/32x32' }}"
-                alt="Аватар автора"
-            />
+        <a href="{% url 'account:user_profile' article.author_id %}" class="user-info flex-row">
+            <img src="{{ article.author_avatar|default:'https://placehold.co/32x32' }}" alt="Аватар автора" />
             <p>{{ article.author_name }}</p>
         </a>
         <p>{{ article.published_ago|timesince_one_level }} назад</p>
@@ -36,10 +31,7 @@
 
     <div class="card-footer">
         <div class="source">
-            <p>
-                Источник:
-                <a href="{{ article.source }}">{{ article.source }}</a>
-            </p>
+            <p>Источник: <a href="{{ article.source }}">{{ article.source }}</a></p>
         </div>
         {% if is_owner %}
         <div class="btn-user-block">
@@ -54,18 +46,12 @@
 
         <div class="interactive flex-row">
             <div class="interactive-item">
-                <a
-                    href="{% url 'articles:article' article.id %}#comment"
-                    class="flex-row"
-                >
+                <a href="{% url 'articles:article' article.id %}#comment" class="flex-row">
                     <i class="fa-solid fa-message"></i>
                     <p>{{ article.comment_count }}</p>
                 </a>
             </div>
-            <div
-                class="interactive-item"
-                onclick="copyLink(`{{ request.scheme }}://{{ request.get_host }}{% url 'articles:article' article.id %}`)"
-            >
+            <div class="interactive-item" onclick="copyLink(`{{ request.scheme }}://{{ request.get_host }}{% url 'articles:article' article.id %}`)">
                 <i class="fa-solid fa-share"></i>
             </div>
         </div>
@@ -73,14 +59,9 @@
 </div>
 
 <div class="autor-block card">
-    <img
-        src="{{ article.author_avatar|default:'https://placehold.co/48x48' }}"
-        alt="Аватар автора"
-    />
+    <img src="{{ article.author_avatar|default:'https://placehold.co/48x48' }}" alt="Аватар автора" />
     <div class="flex-col">
-        <a href="{% url 'account:user_profile' article.author_id %}"
-            >@{{ article.author_name }}</a
-        >
+        <a href="{% url 'account:user_profile' article.author_id %}">@{{ article.author_name }}</a>
         <p>Всего статей: {{ article.total_articles }}</p>
     </div>
 </div>
@@ -90,11 +71,7 @@
     <form method="post">
         {% csrf_token %}
         <label for="comment">Ваш комментарий</label>
-        <textarea
-            name="comment"
-            id=""
-            placeholder="Напишите что-нибудь"
-        ></textarea>
+        <textarea name="comment" id="" placeholder="Напишите что-нибудь"></textarea>
         <input type="submit" value="Отправить" />
     </form>
 </div>
@@ -102,26 +79,20 @@
 <div class="add-coment-block" id="comment">
     <form action="">
         <label for="comment">Ваш комментарий</label>
-        <p class="no-comments">
-            Вы не авторизованы, чтобы оставить комментарий.
-        </p>
+        <p class="no-comments">Вы не авторизованы, чтобы оставить комментарий.</p>
     </form>
 </div>
-{% endif %} {% if article.comment_count > 0 %}
+{% endif %}
+
+{% if total_comments > 0 %}
 <div class="comments-block card">
-    <h5>Комментарии <span>{{ article.comment_count }}</span></h5>
+    <h5>Комментарии <span>{{ total_comments }}</span></h5>
     <ul>
-        {% for comment in article.comments %}
+        {% for comment in comments %}
         <li>
             <div class="comment-header flex-row">
-                <a
-                    href="{{ comment.author.get_absolute_url }}"
-                    class="flex-row"
-                >
-                    <img
-                        src="{{ comment.author.image.url|default:'https://placehold.co/32x32' }}"
-                        alt="Аватар"
-                    />
+                <a href="{{ comment.author.get_absolute_url }}" class="flex-row">
+                    <img src="{{ comment.author.image.url|default:'https://placehold.co/32x32' }}" alt="Аватар" />
                     <p>{{ comment.author.username }}</p>
                 </a>
                 <p>{{ comment.created_at|timesince_one_level }} назад</p>
@@ -137,5 +108,34 @@
     <p class="no-comments">Комментариев пока нет, будьте первым!</p>
 </div>
 {% endif %}
-{% include "articles/includes/paginator.html" %}
+
+{% if is_paginated %}
+<nav class="paginator">
+    <ul>
+        {% if page_obj.has_previous %}
+            <li><a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}#comment"><i class="fas fa-angle-double-left"></i></a></li>
+            <li><a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}#comment"><i class="fas fa-angle-left"></i></a></li>
+        {% else %}
+            <li class="disabled"><span><i class="fas fa-angle-double-left"></i></span></li>
+            <li class="disabled"><span><i class="fas fa-angle-left"></i></span></li>
+        {% endif %}
+
+        {% for i in page_obj.paginator.page_range %}
+            {% if page_obj.number == i %}
+                <li class="active">{{ i }}</li>
+            {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+                <li><a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}#comment">{{ i }}</a></li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}#comment"><i class="fas fa-angle-right"></i></a></li>
+            <li><a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}#comment"><i class="fas fa-angle-double-right"></i></a></li>
+        {% else %}
+            <li class="disabled"><span><i class="fas fa-angle-right"></i></span></li>
+            <li class="disabled"><span><i class="fas fa-angle-double-right"></i></span></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
 {% endblock main_content %}

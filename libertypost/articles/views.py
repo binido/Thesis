@@ -27,9 +27,11 @@ def articles(request: HttpRequest) -> HttpResponse:
         "page_obj": articles_data["page_obj"],
         "is_paginated": articles_data["is_paginated"],
         "total_articles": articles_data["total_articles"],
+        "title": "Статьи",
     }
 
     return render(request, "articles/articles.html", data)
+
 
 
 def article(request: HttpRequest, article_id: int) -> HttpResponse:
@@ -42,10 +44,12 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
         return redirect("articles:article", article_id=article_id)
 
     article = ArticleDAO.get_article_by_id(
-        article_id=article_id, prefetch_comments=True, prefetch_categories=True
+        article_id=article_id, prefetch_categories=True
     )
     author = UserDAO.get_author_stats(author_id=article.author.id)
-    comments = CommentDAO.get_comments_for_article(article_id=article.id)
+    
+    page = request.GET.get("page", 1)
+    comments = CommentDAO.get_comments_for_article(article_id=article.id, page=page, per_page=20)
 
     content = article.content
     content = markdown.markdown(content) if content else None
@@ -68,14 +72,16 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
             "comment_count": article.comment_count,
             "source": article.source,
             "total_articles": author["total_articles"],
-            "comments": comments["comments"],
             "url": article.get_absolute_url(),
         },
+        "comments": comments["comments"],
         "page_obj": comments["page_obj"],
         "is_paginated": comments["is_paginated"],
         "total_comments": comments["total_comments"],
         "is_owner": is_owner,
+        "title": article.title
     }
+
     return render(request, "articles/article.html", context=data)
 
 
@@ -99,7 +105,7 @@ def create_article(request: HttpRequest) -> HttpResponse:
             )
             return redirect("home")
 
-    return render(request, "articles/create_article.html")
+    return render(request, "articles/create_article.html", context={"title": "Создание статьи"})
 
 
 @login_required
@@ -136,6 +142,7 @@ def update_article(request: HttpRequest, article_id: int) -> HttpResponse:
         "article": article,
         "categories": categories,
         "current_category_ids": current_category_ids,
+        "title": f"Редактирование статьи: {article.title}",
     }
 
     return render(request, "articles/update_article.html", context=context)
@@ -170,6 +177,8 @@ def category(request: HttpRequest, category_slug: str) -> HttpResponse:
         else:
             article.html_content = None
 
+    articles_data["title"] = articles_data['category'].name
+
     return render(request, "articles/category.html", context=articles_data)
 
 
@@ -194,8 +203,10 @@ def search(request: HttpRequest) -> HttpResponse:
         else:
             article.html_content = None
 
+    articles_data["title"] = "Поиск статей"
+
     return render(request, "articles/search.html", context=articles_data)
 
 
 def page_not_found_view(request: HttpRequest, exception) -> HttpResponse:
-    return render(request, "articles/404.html", status=404)
+    return render(request, "articles/404.html", status=404, context={"title": "Страница не найдена"})
