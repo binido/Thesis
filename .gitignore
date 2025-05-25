@@ -133,3 +133,5 @@ yarn-error.log
 
 # misc
 .eslintcache
+
+init-letsencrypt.sh
