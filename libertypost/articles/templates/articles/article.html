@@ -31,7 +31,11 @@
 
     <div class="card-footer">
         <div class="source">
+            {% if article.source %}
             <p>Источник: <a href="{{ article.source }}">{{ article.source }}</a></p>
+            {% else %}
+            <p>Источник: Авторская статья</p>
+            {% endif %}
         </div>
         {% if is_owner %}
         <div class="btn-user-block">
