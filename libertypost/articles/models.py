@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
+from .utils import process_cover_image
 
 User = get_user_model()
 
@@ -50,6 +51,18 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         return reverse("articles:article", args=[self.id])
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            try:
+                old_instance = Article.objects.get(pk=self.pk) if self.pk else None
+
+                if not old_instance or old_instance.image != self.image:
+                    self.image = process_cover_image(self.image)
+            except Article.DoesNotExist:
+                self.image = process_cover_image(self.image)
+
+        super().save(*args, **kwargs)
 
 
 class Category(models.Model):

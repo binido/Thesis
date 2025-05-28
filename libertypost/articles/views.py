@@ -5,6 +5,8 @@ from django.shortcuts import redirect, render
 
 from .dao import ArticleDAO, CategoryDAO, CommentDAO, UserDAO
 
+from .utils import process_cover_image
+
 
 def articles(request: HttpRequest) -> HttpResponse:
     page = request.GET.get("page", 1)
@@ -33,7 +35,6 @@ def articles(request: HttpRequest) -> HttpResponse:
     return render(request, "articles/articles.html", data)
 
 
-
 def article(request: HttpRequest, article_id: int) -> HttpResponse:
     if request.method == "POST" and request.user.is_authenticated:
         comment_text = request.POST.get("comment", "").strip()
@@ -47,9 +48,11 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
         article_id=article_id, prefetch_categories=True
     )
     author = UserDAO.get_author_stats(author_id=article.author.id)
-    
+
     page = request.GET.get("page", 1)
-    comments = CommentDAO.get_comments_for_article(article_id=article.id, page=page, per_page=20)
+    comments = CommentDAO.get_comments_for_article(
+        article_id=article.id, page=page, per_page=20
+    )
 
     content = article.content
     content = markdown.markdown(content) if content else None
@@ -79,7 +82,7 @@ def article(request: HttpRequest, article_id: int) -> HttpResponse:
         "is_paginated": comments["is_paginated"],
         "total_comments": comments["total_comments"],
         "is_owner": is_owner,
-        "title": article.title
+        "title": article.title,
     }
 
     return render(request, "articles/article.html", context=data)
@@ -93,6 +96,8 @@ def create_article(request: HttpRequest) -> HttpResponse:
         source = request.POST.get("link", "").strip()
         category_ids = request.POST.getlist("cats")
         image = request.FILES.get("file")
+        if image:
+            image = process_cover_image(image)
 
         if all([title, content, source, category_ids]):
             ArticleDAO.create_article(
@@ -105,7 +110,9 @@ def create_article(request: HttpRequest) -> HttpResponse:
             )
             return redirect("home")
 
-    return render(request, "articles/create_article.html", context={"title": "Создание статьи"})
+    return render(
+        request, "articles/create_article.html", context={"title": "Создание статьи"}
+    )
 
 
 @login_required
@@ -121,6 +128,9 @@ def update_article(request: HttpRequest, article_id: int) -> HttpResponse:
         source = request.POST.get("link", "").strip()
         category_ids = request.POST.getlist("cats")
         image = request.FILES.get("file")
+
+        if image:
+            image = process_cover_image(image)
 
         if all([title, content, source, category_ids]):
             ArticleDAO.update_article(
@@ -177,7 +187,7 @@ def category(request: HttpRequest, category_slug: str) -> HttpResponse:
         else:
             article.html_content = None
 
-    articles_data["title"] = articles_data['category'].name
+    articles_data["title"] = articles_data["category"].name
 
     return render(request, "articles/category.html", context=articles_data)
 
@@ -209,4 +219,9 @@ def search(request: HttpRequest) -> HttpResponse:
 
 
 def page_not_found_view(request: HttpRequest, exception) -> HttpResponse:
-    return render(request, "articles/404.html", status=404, context={"title": "Страница не найдена"})
+    return render(
+        request,
+        "articles/404.html",
+        status=404,
+        context={"title": "Страница не найдена"},
+    )
