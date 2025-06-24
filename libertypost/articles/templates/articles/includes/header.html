@@ -15,15 +15,15 @@
             </div>
             <div class="header-control flex-row">
                 <a href="{% url 'articles:search' %}">
-                    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+                    <i class="fas fa-search fa-lg"></i>  <!-- fa-magnifying-glass → fa-search -->
                 </a>
                 {% if user.is_authenticated %}
                     <a href="{% url 'articles:create_article' %}">
-                        <i class="fa-solid fa-pen fa-lg"></i>
+                        <i class="fas fa-pen fa-lg"></i>  <!-- fa-pen есть в 5.15.4 -->
                     </a>
                     {% if user.is_superuser %}
                     <a href="{% url 'admin:index' %}">
-                        <i class="fa-solid fa-user-shield fa-lg"></i>
+                        <i class="fas fa-user-shield fa-lg"></i> <!-- fa-user-shield есть в 5.15.4 -->
                     </a>
                     {% endif %}
                     <a href="{% url 'account:profile' %}">
@@ -35,7 +35,7 @@
                     </a>
                 {% else %}
                     <a href="{% url 'account:login' %}">
-                        <i class="fa-solid fa-right-to-bracket fa-lg"></i>
+                        <i class="fas fa-sign-in-alt fa-lg"></i> <!-- fa-right-to-bracket → fa-sign-in-alt -->
                     </a>
                 {% endif %}
             </div>
@@ -46,9 +46,7 @@
             <ul class="flex-row">
                 {% for category in categories %}
                 <li>
-                    <a href="{{ category.get_absolute_url }}"
-                        >{{ category.name }}</a
-                    >
+                    <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
                 </li>
                 {% endfor %}
             </ul>
@@ -58,9 +56,7 @@
         <ul>
             {% for category in categories %}
             <li>
-                <a href="{{ category.get_absolute_url }}"
-                    >{{ category.name }}</a
-                >
+                <a href="{{ category.get_absolute_url }}">{{ category.name }}</a>
             </li>
             {% endfor %}
         </ul>

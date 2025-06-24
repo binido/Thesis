@@ -7,6 +7,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="{% static 'css/style.css' %}" />
         <link
+            rel="stylesheet"
+            href="{% static 'fontawesome-free-5.15.4-web/css/all.css' %}"
+        />
+        <link
             rel="shortcut icon"
             href="{% static 'images/favicon.png' %}"
             type="image/x-icon"
@@ -14,10 +18,12 @@
         <script src="{% static 'js/script.js' %}" defer></script>
         <script src="{% static 'js/form-validation.js' %}" defer></script>
         <script src="{% static 'js/multiselect.js' %}" defer></script>
-        <script
+        
+        {% comment %} <script
             src="https://kit.fontawesome.com/86e3599ebf.js"
             crossorigin="anonymous"
-        ></script>
+        ></script> {% endcomment %}
+       
         <title>{{ title }} {% if title %}| {% endif %}LibertyPost</title>
     </head>
     <body>

@@ -51,7 +51,7 @@
         <div class="interactive flex-row">
             <div class="interactive-item">
                 <a href="{% url 'articles:article' article.id %}#comment" class="flex-row">
-                    <i class="fa-solid fa-message"></i>
+                    <i class="fas fa-comment-alt"></i> 
                     <p>{{ article.comment_count }}</p>
                 </a>
             </div>
@@ -59,7 +59,7 @@
                 class="interactive-item"
                 onclick="copyLink(`{{ request.scheme }}://{{ request.get_host }}{% url 'articles:article' article.id %}`)"
             >
-                <i class="fa-solid fa-share"></i>
+                <i class="fas fa-share"></i>
             </div>
         </div>
     </div>
